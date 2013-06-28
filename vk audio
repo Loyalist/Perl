@@ -1,0 +1,29 @@
+=head
+#скачка пусен через парсинг страницы /audio
+use Socket;
+socket(VK_SOCK, PF_INET, SOCK_STREAM, getprotobyname('tcp'))||die "can't open sock";
+connect(VK_SOCK,sockaddr_in(80,inet_aton("vk.com")))||die "can't connect";
+send(VK_SOCK,"GET /audio.html HTTP/1.0\n\n",0);
+my @data = <VK_SOCK>;
+print "@data\n";
+=cut
+#1 аргумент-путь до сохранённой стр. vk.com/audio в .txt
+#2 папка куда сохранять
+use LWP::Simple;
+use threads;
+$pathToHTML=@ARGV[0];$i=0;
+$lF=@ARGV[1];
+open HTML,"<$pathToHTML";
+$lF.="$i.mp3";
+while (defined (my $htmlCode = <HTML>)) {
+        if ($htmlCode=~/<input type="hidden" id="audio/){
+  	$htmlCode=~/http:.*,/;$&=~/,/;
+my $url = "$`";
+$j=$i+1;
+$lF=~s/$i.mp3/$j.mp3/g;$i++;
+print"start download $j file ..\n";
+getstore($url, $lF);
+print "$j file ok\n";
+		}
+}
+close HTML
